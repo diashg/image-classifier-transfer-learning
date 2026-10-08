@@ -2,14 +2,14 @@ import sys
 
 import torch
 import torch.nn as nn 
- 
- 
+
 from torchvision import models
 import matplotlib.pyplot as plt
 from PIL import Image
 
 from data_utils import data_transforms, class_names, device, imshow
 
+# Rebuild the same architecture used in train.py, then load the trained weights
 model = models.resnet18() 
 model.fc = nn.Linear(model.fc.in_features, len(class_names))
 model.load_state_dict(torch.load("model_final.pt", weights_only=True))
@@ -21,11 +21,8 @@ def visualize_model_predictions(model, img_path):
     model.eval()
 
     img = Image.open(img_path)
-
-    img = data_transforms["val"](img)
-
-    img = img.unsqueeze(0)
-
+    img = data_transforms["val"](img) # must match the preprocessing used at training time
+    img = img.unsqueeze(0)            # model expects a batch, not a single image
     img = img.to(device)
 
     with torch.no_grad():
@@ -41,13 +38,10 @@ def visualize_model_predictions(model, img_path):
 
 
 
-
 if __name__ == "__main__":
 
     img_path = sys.argv[1]
     visualize_model_predictions(model, img_path)
     plt.ioff()
     plt.show()
-
-
-
+    
